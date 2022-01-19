@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>_</title>
+
+    <style>
+        body{
+            margin: 0;
+        }
+    </style>
+
+</head>
+<body>
+    <script src="js/three.js"></script>
+
+    <script>
+        
+        // escena - universo
+        const scene = new THREE.Scene() 
+
+        // camara u ojo
+        const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight)
+
+        // renderizado
+        const renderer = new THREE.WebGLRenderer()
+        renderer.setSize( window.innerWidth, window.innerHeight )
+
+        // agregamos el proceso del render al documento
+        document.body.appendChild(renderer.domElement )
+
+        // geometria, elementos poligonales y otras figuras 3D
+        const geometry = new THREE.BoxGeometry(4,4,4)
+        const material = new THREE.MeshBasicMaterial({ color: 0x00FF00})
+        // cubo
+        const cube = new THREE.Mesh( geometry, material )
+        scene.add( cube )
+
+        camera.position.z = 9
+        camera.position.y = 7
+        camera.position.x = 8
+
+        camera.lookAt(cube.position)
+
+        // renderizar
+        renderer.render(scene, camera)
+    </script>
+</body>
+</html>
