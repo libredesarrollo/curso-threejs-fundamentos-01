@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primeros pasos con Three.js</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script src="js/three.js"></script>
+
+    <script type="text/javascript" src="js/TweenMax.min.js"></script>
+
+    <script>
+
+        function init() {
+            // escena - universo
+            const scene = new THREE.Scene()
+
+            // camara u ojo
+            const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight)
+
+            // renderizado
+            const renderer = new THREE.WebGLRenderer()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.shadowMap.enabled = true
+
+            // agregamos el proceso del render al documento
+            document.body.appendChild(renderer.domElement)
+
+            // geometria, elementos poligonales y otras figuras 3D
+            const geometry = new THREE.BoxGeometry(4, 4, 4)
+            const material = new THREE.MeshLambertMaterial({ color: 0xFFAA00, wireframe: false })
+            // cubo
+            const cube = new THREE.Mesh(geometry, material)
+
+            scene.add(cube)
+
+            // esfera geometria y material
+            const geometrySphera = new THREE.SphereGeometry(2, 20, 20)
+            const materialSphera = new THREE.MeshLambertMaterial({ color: 0x00FFFF, wireframe: true })
+            const sphera = new THREE.Mesh(geometrySphera, materialSphera)
+            sphera.castShadow = true
+            scene.add(sphera)
+
+
+
+            // plano
+            const geometryPlane = new THREE.PlaneGeometry(14, 5)
+            const materialPlane = new THREE.MeshLambertMaterial({ color: 0xFFFF00, wireframe: false })
+            const plane = new THREE.Mesh(geometryPlane, materialPlane)
+            scene.add(plane)
+
+            const axes = new THREE.AxesHelper(5)
+            scene.add(axes)
+
+            //*** POSICIONES
+            cube.position.x = -7
+            cube.position.y = 2
+            cube.rotation.x = Math.PI * .5
+
+            cube.castShadow = true
+
+            plane.rotation.x = Math.PI * -0.5
+            plane.position.set(0, -2, 1)
+            plane.receiveShadow = true
+
+            axes.position.x = 3
+            //plane.position.x = -3
+
+
+            // sphera.position.x = 2
+            // sphera.position.y = 2
+
+            //sphera.position.set(2,2,-4)
+
+            camera.position.z = 9
+            camera.position.y = 7
+            camera.position.x = 8
+
+            camera.lookAt(cube.position)
+
+            var spotLight = new THREE.SpotLight(0xFFFFFF)
+            spotLight.position.set(10, 50, -5)
+            spotLight.castShadow = true
+            scene.add(spotLight)
+
+            renderScene()
+
+            var step = 0
+            var scale = 1
+
+            function renderScene() {
+
+                step += 0.04
+                scale += 0.01
+
+                sphera.position.x = 5 * Math.sin(step)
+                sphera.position.y = 4 * Math.abs(Math.sin(step))
+
+                cube.rotation.x += 0.01
+                cube.rotation.y += 0.01
+                cube.rotation.z += 0.01
+
+                if (scale >= 2) {
+                    scale = 1
+                }
+
+                cube.scale.set(scale, scale, scale)
+
+                //s = Math.abs(Math.sin(new Date().getTime()))
+                //cube.material.color.setRGB(s,Math.random(),Math.random())
+
+
+                requestAnimationFrame(renderScene)
+
+                // renderizar
+                renderer.render(scene, camera)
+            }
+
+            function animateColorCube() {                
+                TweenLite.to(cube.material.color, 1, {
+                    r: Math.abs(Math.sin(new Date().getTime())),
+                    g: Math.random(),
+                    b: Math.random(),
+                })
+
+                setTimeout(animateColorCube, 1000)
+
+            }
+
+            animateColorCube()
+
+        }
+
+
+
+
+        init()
+
+    </script>
+</body>
+
+</html>

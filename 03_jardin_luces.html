@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>_</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script src="js/three.js"></script>
+
+    <script>
+
+        function init() {
+
+            // escena - universo
+            const scene = new THREE.Scene()
+
+            // camara u ojo
+            const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight)
+
+            // renderizado
+            const renderer = new THREE.WebGLRenderer()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.shadowMap.enabled = true
+
+            // agregamos el proceso del render al documento
+            document.body.appendChild(renderer.domElement)
+
+            house(scene)
+            bar(scene)
+            tree(scene)
+            floor(scene)
+
+
+            camera.position.z = 20
+            camera.position.y = 20
+            //camera.position.y = 4
+            //camera.position.x = 8
+
+            light(scene)
+
+            camera.lookAt(scene.position)
+
+            // renderizar
+            renderer.render(scene, camera)
+        }
+
+        function house(scene) {
+            // Casa
+            const houseBaseGeometry = new THREE.CylinderGeometry(2, 2, 3)
+            const houseBaseMaterial = new THREE.MeshLambertMaterial({ color: 0xFFEECC })
+            const houseBase = new THREE.Mesh(houseBaseGeometry, houseBaseMaterial)
+
+            houseBase.position.y = 1
+            houseBase.position.x = 5
+
+            houseBase.castShadow = true
+
+            scene.add(houseBase)
+
+
+            const houseRoofGeometry = new THREE.ConeGeometry(2, 3, 15)
+            const houseRoofMaterial = new THREE.MeshLambertMaterial({ color: 0x776600 })
+            const houseRoof = new THREE.Mesh(houseRoofGeometry, houseRoofMaterial)
+
+            houseRoof.castShadow = true
+            houseRoof.receiveShadow = true
+
+
+            houseRoof.position.y = 4
+            houseRoof.position.x = 5
+            scene.add(houseRoof)
+
+            // FIN Casa
+        }
+
+        function light(scene) {
+            const spotLight = new THREE.SpotLight()
+            spotLight.position.set(-40,40,-15)
+
+            spotLight.castShadow = true
+
+            scene.add(spotLight)
+
+            const spotLightHelper = new THREE.SpotLightHelper(spotLight)
+            scene.add(spotLightHelper)
+        }
+
+        function bar(scene) {
+            // lados
+            const barMaterial = new THREE.MeshLambertMaterial({ color: 0x994422 })
+
+            // Derecho lado
+            const geometryBarRightLeft = new THREE.BoxGeometry(1, 1, 11)
+
+            // bar right
+            const barRight = new THREE.Mesh(geometryBarRightLeft, barMaterial)
+            barRight.position.x = 10
+            barRight.castShadow = true
+            scene.add(barRight)
+
+            // bar left
+            const barLeft = new THREE.Mesh(geometryBarRightLeft, barMaterial)
+            barLeft.position.x = -10
+            barLeft.castShadow = true
+            scene.add(barLeft)
+
+            // Derecho lado
+            const geometryBarUpBottom = new THREE.BoxGeometry(19, 1, 1)
+
+            // bar up
+            const barUp = new THREE.Mesh(geometryBarUpBottom, barMaterial)
+            barUp.position.z = 5
+            barUp.castShadow = true
+            scene.add(barUp)
+
+            // bar bottom
+            const barBottom = new THREE.Mesh(geometryBarUpBottom, barMaterial)
+            barBottom.position.z = -5
+            barBottom.castShadow = true
+            scene.add(barBottom)
+        }
+
+        function floor(scene) {
+            // plano base
+            const planeGeometry = new THREE.PlaneGeometry(20, 10)
+            const planeMaterial = new THREE.MeshLambertMaterial({
+                color: 0x779922,
+                wireframe: false
+            })
+            var plane = new THREE.Mesh(planeGeometry, planeMaterial)
+
+            plane.receiveShadow = true
+
+            plane.rotation.x = -0.5 * Math.PI
+            plane.position.y = -0.5
+            scene.add(plane)
+        }
+
+        function tree(scene) {
+            // ARBOL
+            const trunkGeometry = new THREE.BoxGeometry(1, 8, 1)
+            const trunkMaterial = new THREE.MeshLambertMaterial({ color: 0x110000 })
+            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial)
+            trunk.castShadow = true
+
+            trunk.position.y = 3
+            trunk.position.x = -3
+            scene.add(trunk)
+
+            const fodderGeometry = new THREE.SphereGeometry(4, 5, 6)
+            const fodderMaterial = new THREE.MeshLambertMaterial({ color: 0x00AA00 })
+            const fodder = new THREE.Mesh(fodderGeometry, fodderMaterial)
+            fodder.castShadow = true
+            fodder.position.y = 9
+            fodder.position.x = -3
+
+            scene.add(fodder)
+
+            // FIN ARBOL
+        }
+
+        init()
+
+    </script>
+</body>
+
+</html>
