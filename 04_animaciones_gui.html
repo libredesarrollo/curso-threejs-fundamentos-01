@@ -19,6 +19,7 @@
     <script src="js/three.js"></script>
 
     <script type="text/javascript" src="js/TweenMax.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
 
     <script>
 
@@ -94,6 +95,18 @@
             spotLight.castShadow = true
             scene.add(spotLight)
 
+            var controls = {
+                rotationSpeed: 0.03,
+                distanceSpeed: 2,
+                bouncingSpeed: 0.03,
+            }
+
+            var gui = new dat.GUI()
+
+            gui.add(controls, 'rotationSpeed',0,0.5)
+            gui.add(controls, 'distanceSpeed',0,8)
+            gui.add(controls, 'bouncingSpeed',0,2)
+
             renderScene()
 
             var step = 0
@@ -101,15 +114,15 @@
 
             function renderScene() {
 
-                step += 0.04
+                step += controls.bouncingSpeed
                 scale += 0.01
 
-                sphera.position.x = 5 * Math.sin(step)
-                sphera.position.y = 4 * Math.abs(Math.sin(step))
+                sphera.position.x = controls.distanceSpeed * Math.sin(step)
+                sphera.position.y = controls.distanceSpeed * Math.abs(Math.sin(step))
 
-                cube.rotation.x += 0.01
-                cube.rotation.y += 0.01
-                cube.rotation.z += 0.01
+                cube.rotation.x += controls.rotationSpeed
+                cube.rotation.y += controls.rotationSpeed
+                cube.rotation.z += controls.rotationSpeed
 
                 if (scale >= 2) {
                     scale = 1
