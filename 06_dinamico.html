@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primeros pasos con Three.js</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script src="js/three.js"></script>
+
+    <script type="text/javascript" src="js/TweenMax.min.js"></script>
+    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+
+    <script>
+
+        function init() {
+            // escena - universo
+            const scene = new THREE.Scene()
+
+            // camara u ojo
+            const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight)
+
+            // renderizado
+            const renderer = new THREE.WebGLRenderer()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.shadowMap.enabled = true
+
+            // agregamos el proceso del render al documento
+            document.body.appendChild(renderer.domElement)
+
+            // plano
+            const geometryPlane = new THREE.PlaneGeometry(60, 60)
+            const materialPlane = new THREE.MeshLambertMaterial({ color: 0xFFFF00, wireframe: false })
+            const plane = new THREE.Mesh(geometryPlane, materialPlane)
+            plane.name = "mesa"
+            scene.add(plane)
+
+
+            //*** POSICIONES
+
+            plane.rotation.x = Math.PI * -0.5
+            plane.position.set(0, -2, 1)
+            plane.receiveShadow = true
+
+
+
+
+            camera.position.z = 60
+            camera.position.y = 60
+            camera.position.x = 60
+
+            camera.lookAt(plane.position)
+
+            var spotLight = new THREE.SpotLight(0xFFFFFF)
+            spotLight.position.set(10, 50, -5)
+            spotLight.castShadow = true
+            scene.add(spotLight)
+
+
+
+            var controls = {
+                rotationSpeed: 0.03,
+                addGeo: function () {
+
+                    if (Math.random() >= 0.5) {
+                        addCube()
+                    } else {
+                        addSphere()
+                    }
+
+                }
+            }
+
+            var gui = new dat.GUI()
+
+            gui.add(controls, 'rotationSpeed', 0, 0.5)
+            gui.add(controls, 'addGeo')
+
+            function addCube() {
+                // geometria, elementos poligonales y otras figuras 3D
+                const geometry = new THREE.BoxGeometry(Math.random() * 6, Math.random() * 6, Math.random() * 6)
+                const material = new THREE.MeshLambertMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false })
+                // cubo
+                const cube = new THREE.Mesh(geometry, material)
+                cube.position.x = Math.random() * geometryPlane.parameters.width - 30
+                cube.position.z = Math.random() * geometryPlane.parameters.height - 30
+                cube.position.y = Math.random() * 10 + 2
+
+                cube.name = "cubito"
+
+                cube.castShadow = true
+                scene.add(cube)
+
+                renderer.render(scene, camera)
+            }
+
+
+            function addSphere() {
+                // esfera geometria y material
+                const geometrySphera = new THREE.SphereGeometry(Math.random() * 6, Math.random() * 6, Math.random() * 6)
+                const materialSphera = new THREE.MeshLambertMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false })
+                const sphera = new THREE.Mesh(geometrySphera, materialSphera)
+                sphera.position.x = Math.random() * geometryPlane.parameters.width - 30
+                sphera.position.z = Math.random() * geometryPlane.parameters.height - 30
+                sphera.position.y = Math.random() * 10 + 2
+                sphera.castShadow = true
+                scene.add(sphera)
+            }
+
+            function renderScene() {
+
+                scene.traverse(function (e) {
+                    if (e instanceof THREE.Mesh && e != plane) {
+                        e.rotation.x += controls.rotationSpeed
+                        e.rotation.y += controls.rotationSpeed
+                        e.rotation.z += controls.rotationSpeed
+                    }
+                })
+
+
+                requestAnimationFrame(renderScene)
+
+                // renderizar
+                renderer.render(scene, camera)
+            }
+
+            renderScene()
+
+            window.addEventListener('resize', function () {
+
+                camera.aspect = window.innerWidth / window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+
+            })
+
+        }
+
+
+
+        init()
+
+    </script>
+</body>
+
+</html>
