@@ -70,6 +70,7 @@
 
             var controls = {
                 rotationSpeed: 0.03,
+                numberGeo:scene.children.length,
                 addGeo: function () {
 
                     if (Math.random() >= 0.5) {
@@ -78,13 +79,21 @@
                         addSphere()
                     }
 
+                    this.numberGeo = scene.children.length
+                },
+                removeGeo: function(){
+                    lastGeo = scene.children[scene.children.length-1]
+                    if(lastGeo.name == "ran")
+                        scene.remove(lastGeo)
                 }
             }
 
             var gui = new dat.GUI()
 
             gui.add(controls, 'rotationSpeed', 0, 0.5)
+            gui.add(controls, 'numberGeo').listen()
             gui.add(controls, 'addGeo')
+            gui.add(controls, 'removeGeo')
 
             function addCube() {
                 // geometria, elementos poligonales y otras figuras 3D
@@ -96,7 +105,7 @@
                 cube.position.z = Math.random() * geometryPlane.parameters.height - 30
                 cube.position.y = Math.random() * 10 + 2
 
-                cube.name = "cubito"
+                cube.name = "ran"
 
                 cube.castShadow = true
                 scene.add(cube)
@@ -114,6 +123,7 @@
                 sphera.position.z = Math.random() * geometryPlane.parameters.height - 30
                 sphera.position.y = Math.random() * 10 + 2
                 sphera.castShadow = true
+                sphera.name="ran"
                 scene.add(sphera)
             }
 
