@@ -20,6 +20,7 @@
 
     <script type="text/javascript" src="js/TweenMax.min.js"></script>
     <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="js/TrackballControls.js"></script>
 
     <script>
 
@@ -103,16 +104,31 @@
 
             var gui = new dat.GUI()
 
-            gui.add(controls, 'rotationSpeed',0,0.5)
-            gui.add(controls, 'distanceSpeed',0,8)
-            gui.add(controls, 'bouncingSpeed',0,2)
+            gui.add(controls, 'rotationSpeed', 0, 0.5)
+            gui.add(controls, 'distanceSpeed', 0, 8)
+            gui.add(controls, 'bouncingSpeed', 0, 2)
 
-            renderScene()
 
             var step = 0
             var scale = 1
 
+            function initTrackballControls(camara, renderer) {
+                var itc = new THREE.TrackballControls(camara, renderer.domElement)
+
+                //itc.noRotate = true
+                itc.zoomSpeed = 1.5
+
+                return itc
+            }
+
+            var itc = initTrackballControls(camera,renderer)
+
+
+            renderScene()
+
             function renderScene() {
+
+                itc.update()
 
                 step += controls.bouncingSpeed
                 scale += 0.01
@@ -140,7 +156,7 @@
                 renderer.render(scene, camera)
             }
 
-            function animateColorCube() {                
+            function animateColorCube() {
                 TweenLite.to(cube.material.color, 1, {
                     r: Math.abs(Math.sin(new Date().getTime())),
                     g: Math.random(),
@@ -153,12 +169,12 @@
 
             animateColorCube()
 
-            window.addEventListener('resize',function(){
+            window.addEventListener('resize', function () {
 
                 camera.aspect = window.innerWidth / window.innerHeight
                 camera.updateProjectionMatrix()
                 renderer.setSize(window.innerWidth, window.innerHeight)
-                
+
             })
 
         }
