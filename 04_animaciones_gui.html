@@ -35,6 +35,12 @@
             const renderer = new THREE.WebGLRenderer()
             renderer.setSize(window.innerWidth, window.innerHeight)
             renderer.shadowMap.enabled = true
+            //renderer.setClearColor(new THREE.Color(0xFF0000))
+
+            var ambientLight = new THREE.AmbientLight(0xFF0000)
+            //scene.add(ambientLight)
+
+
 
             // agregamos el proceso del render al documento
             document.body.appendChild(renderer.domElement)
@@ -94,7 +100,7 @@
             var spotLight = new THREE.SpotLight(0xFFFFFF)
             spotLight.position.set(10, 50, -5)
             spotLight.castShadow = true
-            scene.add(spotLight)
+            //scene.add(spotLight)
 
             var controls = {
                 rotationSpeed: 0.03,
