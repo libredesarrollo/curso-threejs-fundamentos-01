@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Primeros pasos con Three.js</title>
+    <title>_</title>
 
     <style>
         body{
@@ -14,7 +14,7 @@
 
 </head>
 <body>
-    <script src="js/three.js"></script>
+    <script src="../js/three.js"></script>
 
     <script>
         
@@ -33,41 +33,10 @@
 
         // geometria, elementos poligonales y otras figuras 3D
         const geometry = new THREE.BoxGeometry(4,4,4)
-        const material = new THREE.MeshBasicMaterial({ color: 0x00FF00, wireframe: true })
+        const material = new THREE.MeshBasicMaterial({ color: 0x00FF00})
         // cubo
         const cube = new THREE.Mesh( geometry, material )
         scene.add( cube )
-
-        // esfera geometria y material
-        const geometrySphera = new THREE.SphereGeometry(2, 20, 20)
-        const materialSphera = new THREE.MeshBasicMaterial({ color: 0x00FFFF, wireframe: true })
-        const sphera = new THREE.Mesh( geometrySphera, materialSphera )
-        scene.add(sphera)
-
-        // plano
-        const geometryPlane= new THREE.PlaneGeometry(14, 5)
-        const materialPlane= new THREE.MeshBasicMaterial({ color: 0xFFFF00, wireframe: true })
-        const plane= new THREE.Mesh( geometryPlane, materialPlane)
-        scene.add(plane)
-
-        const axes = new THREE.AxesHelper(5)
-        scene.add(axes)
-
-        //*** POSICIONES
-        cube.position.x = -5
-        cube.rotation.x = Math.PI * .5
-
-        plane.rotation.x = Math.PI * -0.5
-        plane.position.set(0,-2,1)
-
-        axes.position.x = 3
-        //plane.position.x = -3
-
-        
-        // sphera.position.x = 2
-        // sphera.position.y = 2
-
-        //sphera.position.set(2,2,-4)
 
         camera.position.z = 9
         camera.position.y = 7

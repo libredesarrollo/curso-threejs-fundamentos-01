@@ -16,10 +16,10 @@
 </head>
 
 <body>
-    <script src="js/three.js"></script>
+    <script src="../js/three.js"></script>
 
-    <script type="text/javascript" src="js/TweenMax.min.js"></script>
-    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="../js/TweenMax.min.js"></script>
+    <script type="text/javascript" src="../js/dat.gui.min.js"></script>
 
     <script>
 
@@ -136,11 +136,7 @@
                         e.rotation.x += controls.rotationSpeed
                         e.rotation.y += controls.rotationSpeed
                         e.rotation.z += controls.rotationSpeed
-                        e.position.y = Math.sin(e.rotation.x) * 20 + 25
-                        e.position.x = Math.cos(e.rotation.x) * 20
                     }
-
-
                 })
 
 

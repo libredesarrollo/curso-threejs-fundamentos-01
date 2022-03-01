@@ -16,16 +16,19 @@
 </head>
 
 <body>
-    <script src="js/three.js"></script>
+    <script src="../js/three.js"></script>
 
-    <script type="text/javascript" src="js/TweenMax.min.js"></script>
-    <script type="text/javascript" src="js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="../js/TweenMax.min.js"></script>
+    <script type="text/javascript" src="../js/TrackballControls.js"></script>
+    <script type="text/javascript" src="../js/dat.gui.min.js"></script>
 
     <script>
 
         function init() {
             // escena - universo
             const scene = new THREE.Scene()
+            //scene.fog = new THREE.Fog(0xFFFFFF,79,80)
+
 
             // camara u ojo
             const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight)
@@ -43,7 +46,6 @@
             const materialPlane = new THREE.MeshLambertMaterial({ color: 0xFFFF00, wireframe: false })
             const plane = new THREE.Mesh(geometryPlane, materialPlane)
             plane.name = "mesa"
-            plane.visible = false
             scene.add(plane)
 
 
@@ -70,15 +72,11 @@
 
 
             var controls = {
-                rotationSpeed: 0.03,
+                rotationSpeed: 0.0,
                 numberGeo:scene.children.length,
                 addGeo: function () {
 
-                    if (Math.random() >= 0.5) {
-                        addCube()
-                    } else {
-                        addSphere()
-                    }
+                    addCube()
 
                     this.numberGeo = scene.children.length
                 },
@@ -98,46 +96,68 @@
             gui.add(controls, 'addGeo')
             gui.add(controls, 'removeGeo')
 
+
+            var sizeCube = 4
+            var cubeSeparator = 1
+            var countX = 0
+            var countY = 0
+
             function addCube() {
                 // geometria, elementos poligonales y otras figuras 3D
-                const geometry = new THREE.BoxGeometry(Math.random() * 6, Math.random() * 6, Math.random() * 6)
+                const geometry = new THREE.BoxGeometry(sizeCube,sizeCube,sizeCube)
                 const material = new THREE.MeshLambertMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false })
                 // cubo
                 const cube = new THREE.Mesh(geometry, material)
-                cube.position.x = Math.random() * geometryPlane.parameters.width - 30
-                cube.position.z = Math.random() * geometryPlane.parameters.height - 30
-                cube.position.y = Math.random() * 10 + 2
+                cube.position.x = countX - 30
+                cube.position.z = countY - 30
+                cube.position.y = 5
+
+                if(geometryPlane.parameters.width <= countX && geometryPlane.parameters.height <= countY){
+                    // no agregamos mas cubos
+                    return
+                }
+
+                if(geometryPlane.parameters.width <= countX){
+                    // movernos en Y y re inicializar X
+                    countY += sizeCube + cubeSeparator
+                    countX = 0
+                } else{
+                    // movernos en X
+                    countX += sizeCube + cubeSeparator 
+                }
 
                 cube.name = "ran"
-
                 cube.castShadow = true
                 scene.add(cube)
 
                 renderer.render(scene, camera)
+
             }
 
 
-            function addSphere() {
-                // esfera geometria y material
-                const geometrySphera = new THREE.SphereGeometry(Math.random() * 6, Math.random() * 6, Math.random() * 6)
-                const materialSphera = new THREE.MeshLambertMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false })
-                const sphera = new THREE.Mesh(geometrySphera, materialSphera)
-                sphera.position.x = Math.random() * geometryPlane.parameters.width - 30
-                sphera.position.z = Math.random() * geometryPlane.parameters.height - 30
-                sphera.position.y = Math.random() * 10 + 2
-                sphera.castShadow = true
-                sphera.name="ran"
-                scene.add(sphera)
+
+        function initTrackballControls(camara, renderer) {
+                var itc = new THREE.TrackballControls(camara, renderer.domElement)
+
+                //itc.noRotate = true
+                itc.zoomSpeed = 1.5
+
+                return itc
             }
+
+            var itc = initTrackballControls(camera,renderer)
+
+
+            renderScene()
 
             function renderScene() {
 
+                itc.update()
+
                 scene.traverse(function (e) {
-                   // if (e instanceof THREE.Mesh && e != plane) {
-                        e.rotation.x += controls.rotationSpeed
+                    if (e instanceof THREE.Mesh && e != plane) {
                         e.rotation.y += controls.rotationSpeed
-                        e.rotation.z += controls.rotationSpeed
-                    //}
+                    }
                 })
 
 
@@ -147,7 +167,7 @@
                 renderer.render(scene, camera)
             }
 
-            renderScene()
+   
 
             window.addEventListener('resize', function () {
 
