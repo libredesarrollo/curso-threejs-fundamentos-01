@@ -146,37 +146,70 @@
             tree(scene)
             floor(scene)
 
-            // luces
+            // ******* luces
+
+            // spot
             const spotLight = new THREE.SpotLight()
             spotLight.position.set(-40, 40, -15)
             spotLight.castShadow = true
             scene.add(spotLight)
-
             const spotLightHelper = new THREE.SpotLightHelper(spotLight)
             scene.add(spotLightHelper)
+            // spot
 
-            camera.position.z = 20
-            camera.position.y = 20
+            // point
+            const pointLight = new THREE.PointLight()
+            pointLight.position.set(0,5,-10)
+            scene.add(pointLight)
+            const pointLightHelper = new THREE.PointLightHelper(pointLight)
+            scene.add(pointLightHelper)
+            // point
 
-            camera.lookAt(scene.position)
-
+            // ambiente
             var ambientLight = new THREE.AmbientLight(0xFFFFFF,1)
             scene.add(ambientLight)
+            // ambiente
 
+            // **** controles
             controls = {
+                // ambiente
                 ambientIntensity : ambientLight.intensity,
                 ambientColor : ambientLight.color.getStyle(),
+                // spot
+                spotIntensity : spotLight.intensity,
+                spotColor : spotLight.color.getStyle(),
+                // spot
+                pointIntensity : pointLight.intensity,
+                pointColor : pointLight.color.getStyle(),
             }
-
+            
             var gui = new dat.GUI()
+            // ambient
             gui.add(controls, 'ambientIntensity',0,10, 0.1).onChange(function (e) {
                 ambientLight.intensity = controls.ambientIntensity
             })
             gui.addColor(controls, 'ambientColor').onChange(function (e) {
                 ambientLight.color = new THREE.Color(controls.ambientColor)
             })
-
+            // spot
+            gui.add(controls, 'spotIntensity',0,10, 0.1).onChange(function (e) {
+                spotLight.intensity = controls.spotIntensity
+            })
+            gui.addColor(controls, 'spotColor').onChange(function (e) {
+                spotLight.color = new THREE.Color(controls.spotColor)
+            })
+            // point
+            gui.add(controls, 'pointIntensity',0,10, 0.1).onChange(function (e) {
+                pointLight.intensity = controls.pointIntensity
+            })
+            gui.addColor(controls, 'pointColor').onChange(function (e) {
+                pointLight.color = new THREE.Color(controls.pointColor)
+            })
+            // **** controles
    
+            camera.position.z = 20
+            camera.position.y = 20
+            camera.lookAt(scene.position)
 
             function initTrackballControls(camara, renderer) {
                 var itc = new THREE.TrackballControls(camara, renderer.domElement)
@@ -189,10 +222,23 @@
 
             var itc = initTrackballControls(camera,renderer)
 
+            var pivotePointLight = 1
+            var stepPointLight = 0.2
+            var countPointLight = 0
             renderScene()
-
             function renderScene() {
                 itc.update()
+
+                //animacion point
+                pointLight.position.z += stepPointLight * pivotePointLight
+                //animacion point
+
+                if(countPointLight == 100){
+                    countPointLight = 0
+                    pivotePointLight *=-1
+                }
+
+                countPointLight++
 
                 requestAnimationFrame(renderScene)
 
