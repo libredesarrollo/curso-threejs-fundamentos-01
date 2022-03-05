@@ -105,7 +105,7 @@
             function floor(scene) {
                 // plano base
                 const planeGeometry = new THREE.PlaneGeometry(20, 10)
-                const planeMaterial = new THREE.MeshLambertMaterial({
+                const planeMaterial = new THREE.MeshPhongMaterial({
                     color: 0x779922,
                     wireframe: false
                 })
@@ -149,64 +149,104 @@
             // ******* luces
 
             // spot
-            const spotLight = new THREE.SpotLight()
+            const spotLight = new THREE.SpotLight(0xFFFFFF,0)
             spotLight.position.set(-40, 40, -15)
             spotLight.castShadow = true
             scene.add(spotLight)
             const spotLightHelper = new THREE.SpotLightHelper(spotLight)
             scene.add(spotLightHelper)
             // spot
+            // spot
+            const directionalLight = new THREE.DirectionalLight(0xFFFFFF,0)
+            directionalLight.position.set(-40, 60, -15)
+            directionalLight.castShadow = true
+            scene.add(directionalLight)
+            const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight)
+            scene.add(directionalLightHelper)
+            // spot
 
             // point
-            const pointLight = new THREE.PointLight()
-            pointLight.position.set(0,5,-10)
+            const pointLight = new THREE.PointLight(0xFFFFFF,0)
+            pointLight.position.set(0, 2, -10)
+            pointLight.castShadow = true
+            pointLight.decay = 0.1
             scene.add(pointLight)
             const pointLightHelper = new THREE.PointLightHelper(pointLight)
             scene.add(pointLightHelper)
             // point
 
             // ambiente
-            var ambientLight = new THREE.AmbientLight(0xFFFFFF,1)
+            var ambientLight = new THREE.AmbientLight(0xFFFFFF, 0)
             scene.add(ambientLight)
             // ambiente
 
             // **** controles
             controls = {
                 // ambiente
-                ambientIntensity : ambientLight.intensity,
-                ambientColor : ambientLight.color.getStyle(),
+                ambientIntensity: ambientLight.intensity,
+                ambientColor: ambientLight.color.getStyle(),
                 // spot
-                spotIntensity : spotLight.intensity,
-                spotColor : spotLight.color.getStyle(),
-                // spot
-                pointIntensity : pointLight.intensity,
-                pointColor : pointLight.color.getStyle(),
+                spotIntensity: spotLight.intensity,
+                spotColor: spotLight.color.getStyle(),
+                // directional
+                directionalIntensity: directionalLight.intensity,
+                directionalColor: directionalLight.color.getStyle(),
+                // point
+                pointIntensity: pointLight.intensity,
+                pointDistance: pointLight.distance,
+                pointDecay: pointLight.decay,
+                pointColor: pointLight.color.getStyle(),
             }
-            
+
             var gui = new dat.GUI()
             // ambient
-            gui.add(controls, 'ambientIntensity',0,10, 0.1).onChange(function (e) {
+            gui.add(controls, 'ambientIntensity', 0, 10, 0.1).onChange(function (e) {
                 ambientLight.intensity = controls.ambientIntensity
             })
             gui.addColor(controls, 'ambientColor').onChange(function (e) {
                 ambientLight.color = new THREE.Color(controls.ambientColor)
             })
             // spot
-            gui.add(controls, 'spotIntensity',0,10, 0.1).onChange(function (e) {
+            gui.add(controls, 'spotIntensity', 0, 10, 0.1).onChange(function (e) {
                 spotLight.intensity = controls.spotIntensity
+                if (controls.spotIntensity == 0)
+                    spotLight.castShadow = false
+                else
+                    spotLight.castShadow = true
+            })
+            gui.addColor(controls, 'spotColor').onChange(function (e) {
+                spotLight.color = new THREE.Color(controls.spotColor)
+            })
+            // directional
+            gui.add(controls, 'directionalIntensity', 0, 10, 0.1).onChange(function (e) {
+                directionalLight.intensity = controls.directionalIntensity
+                if (controls.directionalIntensity == 0)
+                    directionalLight.castShadow = false
+                else
+                    directionalLight.castShadow = true
             })
             gui.addColor(controls, 'spotColor').onChange(function (e) {
                 spotLight.color = new THREE.Color(controls.spotColor)
             })
             // point
-            gui.add(controls, 'pointIntensity',0,10, 0.1).onChange(function (e) {
+            gui.add(controls, 'pointIntensity', 0, 10, 0.1).onChange(function (e) {
                 pointLight.intensity = controls.pointIntensity
+                if (controls.pointIntensity == 0)
+                    pointLight.castShadow = false
+                else
+                    pointLight.castShadow = true
+            })
+            gui.add(controls, 'pointDecay', 0, 2, 0.1).onChange(function (e) {
+                pointLight.decay = controls.pointDecay
+            })
+            gui.add(controls, 'pointDistance', 0, 10, 0.1).onChange(function (e) {
+                pointLight.distance = controls.pointDistance
             })
             gui.addColor(controls, 'pointColor').onChange(function (e) {
                 pointLight.color = new THREE.Color(controls.pointColor)
             })
             // **** controles
-   
+
             camera.position.z = 20
             camera.position.y = 20
             camera.lookAt(scene.position)
@@ -220,7 +260,7 @@
                 return itc
             }
 
-            var itc = initTrackballControls(camera,renderer)
+            var itc = initTrackballControls(camera, renderer)
 
             var pivotePointLight = 1
             var stepPointLight = 0.2
@@ -233,18 +273,18 @@
                 pointLight.position.z += stepPointLight * pivotePointLight
                 //animacion point
 
-                if(countPointLight == 100){
+                if (countPointLight == 100) {
                     countPointLight = 0
-                    pivotePointLight *=-1
+                    pivotePointLight *= -1
                 }
 
                 countPointLight++
 
                 requestAnimationFrame(renderScene)
 
-                renderer.render(scene,camera)
+                renderer.render(scene, camera)
             }
-   
+
         }
 
 
