@@ -21,13 +21,14 @@
     <script type="text/javascript" src="../js/TweenMax.min.js"></script>
     <script type="text/javascript" src="../js/TrackballControls.js"></script>
     <script type="text/javascript" src="../js/dat.gui.min.js"></script>
+    <script type="text/javascript" src="../js/utils/SceneUtils.js"></script>
 
     <script>
 
         function init() {
             // escena - universo
             const scene = new THREE.Scene()
-            scene.overrideMaterial = new THREE.MeshDepthMaterial()
+            //scene.overrideMaterial = new THREE.MeshDepthMaterial()
             //scene.fog = new THREE.Fog(0xFFFFFF,79,80)
 
 
@@ -106,9 +107,17 @@
             function addCube() {
                 // geometria, elementos poligonales y otras figuras 3D
                 const geometry = new THREE.BoxGeometry(sizeCube, sizeCube, sizeCube)
-                const material = new THREE.MeshLambertMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false })
+                
+                
+
+
+                const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false, transparent: true, blending: THREE.MultiplyBlending })
+                const material2 = new THREE.MeshDepthMaterial()
                 // cubo
-                const cube = new THREE.Mesh(geometry, material)
+                //const cube = new THREE.Mesh(geometry, material)
+
+                const cube = new THREE.SceneUtils.createMultiMaterialObject(geometry,[material, material2])
+
                 cube.position.x = countX - 30
                 cube.position.z = countY - 30
                 cube.position.y = 5
