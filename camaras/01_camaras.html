@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Primeros pasos con Three.js</title>
+
+    <style>
+        body {
+            margin: 0;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script src="../js/three.js"></script>
+
+    <script type="text/javascript" src="../js/TweenMax.min.js"></script>
+    <script type="text/javascript" src="../js/TrackballControls.js"></script>
+    <script type="text/javascript" src="../js/dat.gui.min.js"></script>
+
+    <script>
+
+        function init() {
+            // escena - universo
+            const scene = new THREE.Scene()
+
+
+            // camara u ojo
+            //const camera = new THREE.PerspectiveCamera(80, window.innerWidth / window.innerHeight,20,500)
+            const camera = new THREE.OrthographicCamera(-window.innerWidth / 8 ,window.innerWidth / 8,window.innerHeight / 8,-window.innerHeight / 8,20,500)
+
+            // renderizado
+            const renderer = new THREE.WebGLRenderer()
+            renderer.setSize(window.innerWidth, window.innerHeight)
+            renderer.shadowMap.enabled = true
+
+            // agregamos el proceso del render al documento
+            document.body.appendChild(renderer.domElement)
+
+            // plano
+            const geometryPlane = new THREE.PlaneGeometry(60, 60)
+            const materialPlane = new THREE.MeshLambertMaterial({ color: 0xFFFF00, wireframe: false })
+            const plane = new THREE.Mesh(geometryPlane, materialPlane)
+            plane.name = "mesa"
+            scene.add(plane)
+
+
+            //*** POSICIONES
+
+            plane.rotation.x = Math.PI * -0.5
+            plane.position.set(0, -2, 1)
+            plane.receiveShadow = true
+
+
+
+
+            camera.position.z = 60
+            camera.position.y = 60
+            camera.position.x = 60
+
+            camera.lookAt(plane.position)
+
+            var spotLight = new THREE.SpotLight(0xFFFFFF)
+            spotLight.position.set(10, 50, -5)
+            spotLight.castShadow = true
+            scene.add(spotLight)
+
+
+
+            var controls = {
+                rotationSpeed: 0.0,
+                numberGeo: scene.children.length,
+                addGeo: function () {
+
+                    addCube()
+
+                    this.numberGeo = scene.children.length
+                },
+                removeGeo: function () {
+                    lastGeo = scene.children[scene.children.length - 1]
+                    if (lastGeo.name == "ran")
+                        scene.remove(lastGeo)
+
+                    this.numberGeo = scene.children.length
+                }
+            }
+
+            var gui = new dat.GUI()
+
+            gui.add(controls, 'rotationSpeed', 0, 0.5)
+            gui.add(controls, 'numberGeo').listen()
+            gui.add(controls, 'addGeo')
+            gui.add(controls, 'removeGeo')
+
+
+            var sizeCube = 4
+            var cubeSeparator = 1
+            var countX = 0
+            var countY = 0
+
+            function addCube() {
+                // geometria, elementos poligonales y otras figuras 3D
+                const geometry = new THREE.BoxGeometry(sizeCube, sizeCube, sizeCube)
+                
+                
+
+
+                const material = new THREE.MeshBasicMaterial({ color: Math.random() * 0xFFFFFF, wireframe: false})
+                // cubo
+                const cube = new THREE.Mesh(geometry, material)
+
+                cube.position.x = countX - 30
+                cube.position.z = countY - 30
+                cube.position.y = 5
+
+                if (geometryPlane.parameters.width <= countX && geometryPlane.parameters.height <= countY) {
+                    // no agregamos mas cubos
+                    return false
+                }
+
+                if (geometryPlane.parameters.width <= countX) {
+                    // movernos en Y y re inicializar X
+                    countY += sizeCube + cubeSeparator
+                    countX = 0
+                } else {
+                    // movernos en X
+                    countX += sizeCube + cubeSeparator
+                }
+
+                cube.name = "ran"
+                cube.castShadow = true
+                scene.add(cube)
+
+                renderer.render(scene, camera)
+
+                setTimeout(addCube,10)
+
+                return true
+
+            }
+
+
+
+            function initTrackballControls(camara, renderer) {
+                var itc = new THREE.TrackballControls(camara, renderer.domElement)
+
+                //itc.noRotate = true
+                itc.zoomSpeed = 1.5
+
+                return itc
+            }
+
+            var itc = initTrackballControls(camera, renderer)
+
+
+            renderScene()
+
+            function renderScene() {
+
+                itc.update()
+
+                scene.traverse(function (e) {
+                    if (e instanceof THREE.Mesh && e != plane) {
+                        e.rotation.y += controls.rotationSpeed
+                    }
+                })
+
+
+                requestAnimationFrame(renderScene)
+
+                // renderizar
+                renderer.render(scene, camera)
+            }
+
+
+
+            window.addEventListener('resize', function () {
+
+                camera.aspect = window.innerWidth / window.innerHeight
+                camera.updateProjectionMatrix()
+                renderer.setSize(window.innerWidth, window.innerHeight)
+
+            })
+            addCube()
+
+            // do {
+            //     res = addCube()
+            // } while (res)
+
+        }
+
+
+        init()
+
+    </script>
+</body>
+
+</html>
