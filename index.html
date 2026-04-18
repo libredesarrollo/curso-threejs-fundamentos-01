@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Three.js Fundamentals</title>
+    <link rel="stylesheet" href="/src/style/main.css">
+</head>
+<body>
+    <div id="menu">
+        <h1>Three.js Moderno</h1>
+        <p>Selecciona un ejemplo:</p>
+        <ul id="examples-list">
+            <li><a href="#" data-example="01_primeros_pasos">01 - Primeros Pasos</a></li>
+            <!-- Add more here -->
+        </ul>
+    </div>
+
+    <script type="module">
+        const examples = {
+            '01_primeros_pasos': () => import('./src/examples/01_primeros_pasos.js'),
+            '02_jardin_proyecto': () => import('./src/examples/02_jardin_proyecto.js'),
+            '04_animaciones_gui': () => import('./src/examples/04_animaciones_gui.js'),
+        };
+
+        const list = document.getElementById('examples-list');
+        list.innerHTML = Object.keys(examples).map(key => `
+            <li><a href="#${key}">${key.replace(/_/g, ' ')}</a></li>
+        `).join('');
+
+        async function loadExample() {
+            const hash = window.location.hash.slice(1) || '01_primeros_pasos';
+            
+            // Clear current canvas if any
+            const existingCanvas = document.querySelector('canvas');
+            if (existingCanvas) existingCanvas.remove();
+            
+            // Remove existing lil-gui if any
+            const existingGui = document.querySelector('.lil-gui');
+            if (existingGui) existingGui.remove();
+
+            if (examples[hash]) {
+                // Note: In a real app, you might want to handle cleaning up the previous scene/renderer
+                // but for this course modernization, a simple refresh or dynamic import works.
+                // Dynamic import will re-execute the code and append a new canvas.
+                // For a more robust solution, we would export an 'init' function.
+                window.location.reload(); // Simplest way to clear Three.js state for now
+            }
+        }
+
+        window.addEventListener('hashchange', () => window.location.reload());
+        
+        const currentHash = window.location.hash.slice(1) || '01_primeros_pasos';
+        if (examples[currentHash]) {
+            examples[currentHash]();
+        }
+    </script>
+</body>
+</html>
