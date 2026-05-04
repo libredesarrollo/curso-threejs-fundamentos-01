@@ -20,6 +20,7 @@
   "homepage": "https://github.com/libredesarrollo/curso-threejs-fundamentos-01#readme",
   "description": "",
   "dependencies": {
+    "cannon-es": "^0.20.0",
     "gsap": "^3.15.0",
     "lil-gui": "^0.21.0",
     "three": "^0.184.0"
