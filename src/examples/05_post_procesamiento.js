@@ -1,89 +1,119 @@
 import * as THREE from 'three';
-import { TrackballControls } from 'three/examples/jsm/controls/TrackballControls.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-import { SMAAPass } from 'three/examples/jsm/postprocessing/SMAAPass.js';
 import { GlitchPass } from 'three/examples/jsm/postprocessing/GlitchPass.js';
+import { FilmPass } from 'three/examples/jsm/postprocessing/FilmPass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+import GUI from 'lil-gui';
 
-// Setup basic scene
+// ─────────────────────────────────────────────────────────────────────────────
+// ESCENA BASE
+// ─────────────────────────────────────────────────────────────────────────────
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x050505);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
-camera.position.set(0, 2, 8);
+camera.position.set(0, 5, 10);
 
-const renderer = new THREE.WebGLRenderer({ antialias: false }); // Antialias false because we use SMAAPass
+const renderer = new THREE.WebGLRenderer({ antialias: false }); // Desactivamos nativo para usar FXAA
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 document.body.appendChild(renderer.domElement);
 
-const controls = new TrackballControls(camera, renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
 
-// Objects
-const group = new THREE.Group();
-scene.add(group);
+// ─────────────────────────────────────────────────────────────────────────────
+// OBJETOS DE PRUEBA (Geometría con colores vivos para el Bloom)
+// ─────────────────────────────────────────────────────────────────────────────
+const geo = new THREE.IcosahedronGeometry(1, 15);
+const material = new THREE.MeshStandardMaterial({ color: 0x00ff88, emissive: 0x00ff88, emissiveIntensity: 2 });
+const mesh = new THREE.Mesh(geo, material);
+scene.add(mesh);
 
-const geometry = new THREE.TorusKnotGeometry(1.5, 0.4, 100, 16);
-const material = new THREE.MeshStandardMaterial({ 
-    color: 0x00ffaa, 
-    emissive: 0x00ffaa, 
-    emissiveIntensity: 0.8,
-    roughness: 0.2,
-    metalness: 0.8
-});
-const mesh = new THREE.Mesh(geometry, material);
-group.add(mesh);
+const grid = new THREE.GridHelper(20, 20, 0x444444, 0x222222);
+scene.add(grid);
 
-// Lights
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1);
 scene.add(ambientLight);
 
-const pointLight = new THREE.PointLight(0xffffff, 1);
+const pointLight = new THREE.PointLight(0x00ff88, 10, 20);
 pointLight.position.set(5, 5, 5);
 scene.add(pointLight);
 
-// 1. Instanciar el compositor pasándole nuestro WebGLRenderer original
+// ─────────────────────────────────────────────────────────────────────────────
+// CONFIGURACIÓN DE POST-PROCESAMIENTO
+// ─────────────────────────────────────────────────────────────────────────────
 const composer = new EffectComposer(renderer);
 
-// 2. Crear el RenderPass base y añadirlo al compositor
+// 1. Render Pass (El dibujo base)
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
-// 3. Efecto Bloom (Resplandor)
-const bloomPass = new UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.5,  // strength
-    0.4,  // radius
-    0.85  // threshold
-);
+// 2. Bloom Pass (Brillo)
+const bloomPass = new UnrealBloomPass(new THREE.Vector2(window.innerWidth, window.innerHeight), 1.5, 0.4, 0.85);
 composer.addPass(bloomPass);
 
-// 4. Glitch Pass (comentado por defecto para no ser molesto, puedes descomentarlo)
-// const glitchPass = new GlitchPass();
-// composer.addPass(glitchPass);
+// 3. Glitch Pass (Interferencias)
+const glitchPass = new GlitchPass();
+glitchPass.enabled = false; // Desactivado por defecto
+composer.addPass(glitchPass);
 
-// 5. Anti-Aliasing (SMAA)
-const smaaPass = new SMAAPass(window.innerWidth * renderer.getPixelRatio(), window.innerHeight * renderer.getPixelRatio());
-composer.addPass(smaaPass);
+// 4. Film Pass (Grano de película y líneas de scan)
+const filmPass = new FilmPass(0.35, 0.025, 648, false);
+filmPass.enabled = false;
+composer.addPass(filmPass);
 
-// Resize handling
+// 5. FXAA Pass (Anti-aliasing para suavizar bordes post-pro)
+const fxaaPass = new ShaderPass(FXAAShader);
+fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
+composer.addPass(fxaaPass);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// GUI
+// ─────────────────────────────────────────────────────────────────────────────
+const gui = new GUI({ title: 'Post-procesamiento' });
+
+const bloomFolder = gui.addFolder('🌟 Bloom (Brillo)');
+bloomFolder.add(bloomPass, 'enabled').name('Activar');
+bloomFolder.add(bloomPass, 'strength', 0, 5, 0.01).name('Fuerza');
+bloomFolder.add(bloomPass, 'radius', 0, 2, 0.01).name('Radio');
+bloomFolder.add(bloomPass, 'threshold', 0, 1, 0.01).name('Umbral');
+
+const glitchFolder = gui.addFolder('👾 Glitch (Error)');
+glitchFolder.add(glitchPass, 'enabled').name('Activar');
+glitchFolder.add(glitchPass, 'goWild').name('Modo Loco');
+
+const filmFolder = gui.addFolder('🎬 Film (Cine)');
+filmFolder.add(filmPass, 'enabled').name('Activar');
+
+gui.add(fxaaPass, 'enabled').name('Anti-Aliasing (FXAA)');
+
+// ─────────────────────────────────────────────────────────────────────────────
+// RESIZE
+// ─────────────────────────────────────────────────────────────────────────────
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
     composer.setSize(window.innerWidth, window.innerHeight);
+    fxaaPass.uniforms['resolution'].value.set(1 / window.innerWidth, 1 / window.innerHeight);
 });
 
-// Main Loop
+// ─────────────────────────────────────────────────────────────────────────────
+// LOOP
+// ─────────────────────────────────────────────────────────────────────────────
 function animate() {
     requestAnimationFrame(animate);
     controls.update();
     
-    group.rotation.x += 0.005;
-    group.rotation.y += 0.01;
+    mesh.rotation.x += 0.01;
+    mesh.rotation.y += 0.01;
 
-    // AHORA hacemos composer.render() en lugar de renderer.render()
+    // IMPORTANTE: Renderizar con el composer, no con el renderer
     composer.render();
 }
 
