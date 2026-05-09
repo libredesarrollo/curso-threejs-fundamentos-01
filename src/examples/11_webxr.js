@@ -14,7 +14,7 @@ scene.fog = new THREE.Fog(0x606060, 5, 20);
 const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
 camera.position.set(0, 1.6, 4); // 1.6m = altura de ojos promedio
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.shadowMap.enabled = true;
@@ -22,6 +22,7 @@ renderer.shadowMap.type    = THREE.PCFSoftShadowMap;
 
 // ── PASO 1: Habilitar WebXR ───────────────────────────────────────────────────
 renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType('local-floor');
 
 document.body.appendChild(renderer.domElement);
 
@@ -31,8 +32,6 @@ document.body.appendChild(VRButton.createButton(renderer));
 // Listeners de sesión XR
 renderer.xr.addEventListener('sessionstart', () => {
     console.log('Sesión VR iniciada');
-    // Aseguramos que el usuario está a 1.6m del suelo en VR
-    renderer.xr.getCamera().position.y = 1.6;
 });
 renderer.xr.addEventListener('sessionend', () => {
     console.log('Sesión VR terminada');
